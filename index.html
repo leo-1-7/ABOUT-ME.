@@ -1,0 +1,3168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>.</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            height: 100%;
+            width: 100%;
+        }
+
+        html {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .progress-container {
+            position: absolute;
+            bottom: 30%;
+            width: 80%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .progress-bar-wrapper {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ffffff 0%, #f0f0f0 50%, #ffffff 100%);
+            background-size: 200% 100%;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s ease-out;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            animation: shimmer 2s linear infinite;
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .loading-dots {
+            display: inline-block;
+        }
+
+        .loading-dots span {
+            color: #FFD700;
+            font-size: 24px;
+            font-weight: 300;
+            display: inline-block;
+            animation: wave 1.4s ease-in-out infinite;
+        }
+
+        .loading-dots span:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .loading-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes wave {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .loading-percentage {
+            color: white;
+            font-size: 36px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Main Content */
+        .main-content {
+            min-height: 100vh;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 0;
+            padding: 20px;
+            opacity: 0;
+            animation: fadeIn 0.8s ease-in 0.5s forwards;
+            width: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            align-items: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .main-button {
+            padding: 18px 50px;
+            font-size: 20px;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .main-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .main-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-button:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-about {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-favorites {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            width: 90%;
+            max-width: 800px;
+            min-height: 80vh;
+            max-height: 90vh;
+            border-radius: 20px;
+            padding: 50px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s ease;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-about {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
+        .modal-favorites {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 10003;
+        }
+
+
+        .close-button:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: rotate(90deg);
+        }
+
+        .modal-content {
+            margin-top: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Music modal content should use full available height */
+        .modal-music .modal-content {
+            max-height: calc(90vh - 200px);
+        }
+
+        /* Mobile landscape specific adjustments for music modal */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .modal-music .modal-box {
+                padding: 10px;
+            }
+
+            .modal-music .modal-title {
+                font-size: 16px;
+                margin-bottom: 5px;
+            }
+
+            .modal-music .modal-content {
+                max-height: calc(98vh - 100px);
+                padding-right: 5px;
+            }
+
+            .modal-music .music-list {
+                padding-right: 5px;
+            }
+
+            .modal-music .song-item {
+                margin-bottom: 12px;
+            }
+
+            .modal-music .music-info-button {
+                top: 10px;
+                right: 10px;
+            }
+        }
+
+        /* Other modals */
+        .modal-about .modal-content,
+        .modal-favorites .modal-content,
+        .modal-gaming .modal-content {
+            max-height: calc(90vh - 150px);
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .modal-text {
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .modal-action-button {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-exit {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-action-button:active {
+            transform: translateY(0);
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .info-item:hover {
+            transform: translateX(10px);
+        }
+
+        .info-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-value {
+            font-size: 18px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .name-item, .hobbies-item, .favorites-item {
+            position: relative;
+        }
+
+        .name-with-button, .hobbies-with-button, .favorites-with-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .favorites-title-with-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .info-toggle-button {
+            background: #4CAF50;
+            border: none;
+            border-radius: 8px;
+            width: 35px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+
+        .info-toggle-button.disabled {
+            background: #808080;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+
+        .info-toggle-button.disabled:hover,
+        .info-toggle-button.disabled:active {
+            transform: none;
+        }
+
+        .info-toggle-button:hover {
+            background: #45a049;
+            transform: translateX(3px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5);
+        }
+
+        .info-toggle-button:active {
+            transform: translateX(1px);
+        }
+
+        .info-toggle-button.rotated {
+            transform: rotate(180deg);
+        }
+
+        .info-toggle-button.rotated:hover {
+            transform: rotate(180deg) translateX(-3px);
+        }
+
+        .personal-info-box {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+            margin: 0;
+        }
+
+        .personal-info-box.show {
+            max-height: 500px;
+            opacity: 1;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+
+        .personal-info-container {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .personal-info-box .info-item {
+            margin-bottom: 15px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .personal-info-box .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .hobbies-box {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+            margin: 0;
+        }
+
+        .hobbies-box.show {
+            max-height: 300px;
+            opacity: 1;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+
+        .back-button-box {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            margin-top: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .back-button-box .small-button {
+            flex: 1;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .back-button-box .btn-back {
+            margin-right: auto;
+        }
+
+        .back-button-box .btn-exit {
+            margin-left: auto;
+        }
+
+        .about-favorites-box {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 0;
+            margin: 0;
+        }
+
+        .about-favorites-box.show {
+            max-height: 2000px;
+            opacity: 1;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+
+        .favorites-topics-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .favorite-topic-box {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(76, 175, 80, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .favorite-topic-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .favorite-topic-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .favorite-topic-emoji {
+            font-size: 28px;
+        }
+
+        .favorite-topic-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .favorite-topic-description {
+            font-style: italic;
+            color: #555;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .description-short {
+            display: inline;
+        }
+
+        .description-short.expanded {
+            display: none !important;
+        }
+
+        .description-full {
+            display: none !important;
+        }
+
+        .description-full.expanded {
+            display: inline !important;
+        }
+
+        .see-more-link {
+            color: #808080;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: underline;
+            margin-left: 2px;
+            font-style: normal;
+            transition: color 0.3s ease;
+        }
+
+        .see-more-link:hover {
+            color: #707070;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .favorite-card {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .favorite-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .favorite-card.clickable {
+            cursor: pointer;
+        }
+
+        .modal-gaming {
+            background: linear-gradient(135deg, #ffd89b 0%, #ff9a56 100%);
+        }
+
+        .modal-music {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+        }
+
+        .gaming-image-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .gaming-title {
+            text-align: left;
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .gaming-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .gaming-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .gaming-click-button {
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .btn-click-me {
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: #808080;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-click-me:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-click-me:active {
+            transform: translateY(-1px);
+        }
+
+        .gaming-link-button {
+            display: inline-block;
+            padding: 10px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            background: #808080;
+            color: white;
+            border: 2px solid #666;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .gaming-link-button:hover {
+            background: #707070;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .gaming-link-button:active {
+            transform: translateY(0);
+        }
+
+        .music-player-container {
+            margin: 20px 0;
+        }
+
+        .music-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .play-button, .music-control-button {
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: 600;
+            background: #808080;
+            color: white;
+            border: 2px solid #666;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+        }
+
+        .music-control-button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        .play-button:hover, .music-control-button:hover {
+            background: #707070;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .play-button:active, .music-control-button:active {
+            transform: translateY(0);
+        }
+
+        .music-progress-container {
+            width: 100%;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .music-progress-container.active {
+            display: block;
+        }
+
+        .music-progress-bar-wrapper {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .music-progress-bar {
+            height: 100%;
+            background: #808080;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .music-time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .music-list {
+            overflow: visible;
+            padding-right: 10px;
+        }
+
+        .song-item {
+            margin-bottom: 20px;
+        }
+
+        .song-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .music-info-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            border: 3px solid #ff6b6b;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            z-index: 10002;
+        }
+
+        .music-info-button:hover {
+            background: linear-gradient(135deg, #ff5252 0%, #e53935 100%);
+            transform: scale(1.15);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+            border-color: #ff5252;
+        }
+
+        .music-info-button:active {
+            transform: scale(1.05);
+        }
+
+        .music-disclaimer-box {
+            position: absolute;
+            top: 75px;
+            right: 20px;
+            width: 300px;
+            max-width: calc(100% - 40px);
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            text-align: center;
+            font-style: italic;
+            font-size: 11px;
+            color: #555;
+            line-height: 1.6;
+            display: none;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            z-index: 10001;
+            backdrop-filter: blur(10px);
+        }
+
+        .music-disclaimer-box.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .disclaimer-button {
+            margin-top: 15px;
+            padding: 8px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            background: #808080;
+            color: white;
+            border: 2px solid #666;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            font-style: normal;
+        }
+
+        .disclaimer-button:hover {
+            background: #707070;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .disclaimer-button:active {
+            transform: translateY(0);
+        }
+
+        .hidden-link {
+            display: none;
+        }
+
+        .favorite-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* Unavailable Message Box */
+        .unavailable-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 10003;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            display: none;
+            animation: fadeIn 0.3s ease;
+            max-width: 400px;
+            border: 3px solid #ff6b6b;
+        }
+
+        .unavailable-message.show {
+            display: block;
+        }
+
+        .unavailable-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10002;
+            display: none;
+        }
+
+        .unavailable-overlay.show {
+            display: block;
+        }
+
+        .unavailable-close {
+            margin-top: 20px;
+            padding: 10px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .unavailable-close:hover {
+            background: #ee5a6f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Form link below warning box */
+        .form-link-below {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 8px;
+            z-index: 10004;
+            font-size: 12px;
+        }
+
+        /* Personal details access gate */
+        .access-gate {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 15px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(128, 128, 128, 0.4);
+            margin-top: 12px;
+            display: none;
+        }
+
+        .access-gate-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .access-gate-msg {
+            font-size: 14px;
+            color: #444;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .access-gate-link {
+            color: #808080;
+            cursor: pointer;
+            font-weight: 700;
+            text-decoration: underline;
+            transition: color 0.3s ease;
+        }
+
+        .access-gate-link:hover {
+            color: #707070;
+        }
+
+        .otp-container {
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+
+        .otp-input {
+            padding: 10px 14px;
+            font-size: 16px;
+            width: 160px;
+            text-align: center;
+            border-radius: 8px;
+            border: 2px solid #bbb;
+            outline: none;
+        }
+
+        .otp-input:focus {
+            border-color: #888;
+        }
+
+        .otp-submit {
+            margin-left: 8px;
+            padding: 10px 16px;
+            font-size: 16px;
+            font-weight: 600;
+            background: #808080;
+            color: white;
+            border: 2px solid #666;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .otp-submit:hover {
+            background: #707070;
+            transform: translateY(-2px);
+        }
+
+        .otp-feedback {
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #cc0000;
+            min-height: 18px;
+        }
+
+        /* Welcome toast */
+        .welcome-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4caf50;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-weight: 700;
+            z-index: 10005;
+            display: none;
+        }
+
+        /* Post-loading welcome intro */
+        .intro-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #dff5e1;
+            color: #1b5e20;
+            padding: 20px 24px;
+            border-radius: 14px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+            z-index: 10004;
+            width: 90%;
+            max-width: 640px;
+            display: none;
+            opacity: 1;
+            transition: opacity 0.8s ease;
+            text-align: center;
+            border: 2px solid rgba(27, 94, 32, 0.2);
+        }
+
+        .intro-box.show {
+            display: block;
+        }
+
+        .intro-box.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .intro-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: #1b5e20;
+        }
+
+        .intro-message {
+            font-size: 14px;
+            color: #1e4620;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
+        .intro-skip {
+            margin-top: 14px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            background: #808080;
+            color: white;
+            border: 2px solid #666;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .intro-skip:hover {
+            background: #707070;
+            transform: translateY(-2px);
+        }
+
+        /* Warning Message Box */
+        .warning-message {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            background: #ffcccc;
+            border: 2px solid #ff9999;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: #cc0000;
+            font-weight: 500;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.1);
+        }
+
+        .favorite-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .favorite-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .modal-box {
+                width: 95%;
+                padding: 30px 20px;
+                min-height: 70vh;
+            }
+
+
+            .modal-title {
+                font-size: 28px;
+                margin-bottom: 15px;
+            }
+
+            .info-value {
+                font-size: 16px;
+            }
+
+            .info-label {
+                font-size: 12px;
+            }
+
+            .main-button {
+                padding: 15px 40px;
+                font-size: 18px;
+            }
+
+            .modal-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .modal-action-button {
+                width: 100%;
+            }
+
+            .progress-container {
+                width: 90%;
+                bottom: 25%;
+            }
+
+            .loading-percentage {
+                font-size: 28px;
+            }
+
+            .loading-text {
+                font-size: 20px;
+            }
+
+            .loading-dots span {
+                font-size: 20px;
+            }
+
+            .info-toggle-button {
+                width: 32px;
+                height: 28px;
+                font-size: 16px;
+            }
+
+            .name-with-button, .hobbies-with-button, .favorites-with-button {
+                gap: 8px;
+            }
+
+            .personal-info-container {
+                padding: 15px;
+            }
+
+            .back-button-box {
+                padding: 12px;
+            }
+        }
+
+        /* Portrait Orientation Styles */
+        @media (orientation: portrait) {
+            .main-content {
+                justify-content: center;
+                padding-top: 40px;
+                padding-bottom: 40px;
+            }
+
+            .button-container {
+                width: 100%;
+                max-width: 100%;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            .main-button {
+                width: 90%;
+                max-width: 400px;
+            }
+
+            .warning-message {
+                width: 90%;
+                max-width: 400px;
+                bottom: 30px;
+            }
+
+            .modal-box {
+                width: 95%;
+                max-height: 85vh;
+                padding: 30px 20px;
+            }
+
+            .favorites-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .modal-title {
+                font-size: 24px;
+            }
+        }
+
+        /* Landscape Orientation Styles */
+        @media (orientation: landscape) {
+            .main-content {
+                justify-content: center;
+                min-height: 100vh;
+            }
+
+            .button-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 20px;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            .main-button {
+                flex: 0 0 auto;
+                min-width: 200px;
+            }
+
+            .warning-message {
+                width: 100%;
+                max-width: 600px;
+                bottom: 30px;
+            }
+
+            .modal-box {
+                max-height: 95vh;
+                padding: 40px;
+            }
+
+            .favorites-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .modal-title {
+                font-size: 32px;
+            }
+
+            .progress-container {
+                bottom: 20%;
+            }
+        }
+
+        /* Landscape on mobile devices */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .main-content {
+                padding: 10px;
+            }
+
+            .button-container {
+                gap: 15px;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            .main-button {
+                padding: 12px 30px;
+                font-size: 16px;
+            }
+
+            .warning-message {
+                padding: 10px 15px;
+                font-size: 12px;
+                bottom: 20px;
+            }
+
+            .modal-box {
+                max-height: 98vh;
+                padding: 15px;
+                width: 98%;
+            }
+
+            .modal-title {
+                font-size: 18px;
+                margin-bottom: 8px;
+            }
+
+            .modal-content {
+                max-height: calc(98vh - 120px);
+                margin-top: 10px;
+            }
+
+            .modal-music .modal-content {
+                max-height: calc(98vh - 140px);
+            }
+
+            .music-info-button {
+                top: 10px;
+                right: 10px;
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+
+            .music-disclaimer-box {
+                top: 50px;
+                right: 10px;
+                width: calc(100% - 20px);
+                max-width: calc(100% - 20px);
+                padding: 15px;
+                font-size: 10px;
+            }
+
+            .info-item {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+
+            .info-label {
+                font-size: 11px;
+            }
+
+            .info-value {
+                font-size: 14px;
+            }
+
+            .song-controls {
+                gap: 5px;
+            }
+
+            .play-button, .music-control-button {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+
+            .modal-buttons {
+                margin-top: 10px;
+                gap: 8px;
+            }
+
+            .modal-action-button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="progress-container">
+            <div class="loading-text">Loading<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></div>
+            <div class="progress-bar-wrapper">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="loading-percentage" id="loadingPercentage">0%</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="button-container">
+            <button class="main-button btn-about" onclick="openModal('about')">About Me</button>
+            <button class="main-button btn-favorites" onclick="openModal('favorites')">My Favorites</button>
+        </div>
+        <div class="warning-message" id="mainWarning">
+            THIS IS ISN'T OFFICIALLY FINISHED YET; I STILL HAVE MANY WORKS TO DO
+            <div id="warningTimerLine" style="margin-top:6px;font-weight:700;">UPDATES IN <span id="warningTimer">15:00:00:00</span></div>
+            <div id="updatingMsg" style="display:none;margin-top:6px;font-weight:700;">
+                UPDATING<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>
+            </div>
+        </div>
+        <!-- Outside the box link below the warning + timer -->
+        <div class="form-link-below" id="formLinkBelow">
+            <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSepwgBcRWKOAWcpfeGn-Jb2_nK6MYzGJtufxtD5QI1iA2-1IA/viewform?usp=dialog"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="color:#2e7d32; font-weight:700; font-style:italic; text-decoration:none; cursor:pointer;"
+            >ANSWER THIS FORM</a>
+        </div>
+    </div>
+    <!-- Welcome Intro Box -->
+    <div id="introBox" class="intro-box" role="dialog" aria-live="polite">
+        <div class="intro-title">WELCOME</div>
+        <div class="intro-message">HELLO THERE! I'M SO GLAD YOU DROPPED BY🥰🫶🏻
+
+THIS IS WHERE YOU'LL GET TO KNOW A LITTLE MORE ABOUT ME — ESPECIALLY MY HOBBIES, MY FAVORITES, AND THE THINGS THAT KEEP ME
+INSPIRED.
+
+FEEL FREE TO EXPLORE, CLICK AROUND, AND ENJOY YOUR STAY!</div>
+        <button id="introSkip" class="intro-skip" title="Skip">Skip</button>
+    </div>
+
+    <!-- About Me Modal -->
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal-box modal-about">
+            <!-- Close button removed per request -->
+            <h1 class="modal-title">About Me</h1>
+            <div class="modal-content">
+                <div class="info-item name-item">
+                    <div class="info-label name-with-button">
+                        <span>Personal Details</span>
+                        <button id="personalToggleBtn" class="info-toggle-button" title="Toggle access">▶</button>
+                    </div>
+                </div>
+                <div class="access-gate" id="personalAccessGate">
+                    <div class="access-gate-title">YOU CANNOT ACCESS THE PERSONAL DETAILS!</div>
+                    <div class="access-gate-msg">
+                        Want to access personal details?
+                        <span class="access-gate-link" id="showOtpLink">Click here</span>
+                    </div>
+                    <div class="otp-container" id="otpContainer">
+                        <input
+                            id="otpInput"
+                            class="otp-input"
+                            type="text"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                            autocomplete="one-time-code"
+                            placeholder="Enter one-time PIN"
+                            maxlength="4"
+                        />
+                        <button class="otp-submit" id="otpSubmit">Submit</button>
+                        <div class="otp-feedback" id="otpFeedback"></div>
+                    </div>
+                </div>
+                <div class="personal-info-box" id="personalInfoBox">
+                    <div class="personal-info-container">
+                        <div class="info-item">
+                            <div class="info-label">Name</div>
+                            <div class="info-value">Leo Paul Yamaguchi</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Age</div>
+                            <div class="info-value">17 Years Old</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Birth Date</div>
+                            <div class="info-value">March 15, 2008</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Birthplace</div>
+                            <div class="info-value">Rafael S. Tumbukon Memorial Hospital</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-item hobbies-item">
+                    <div class="info-label hobbies-with-button">
+                        <span>Hobbies</span>
+                        <button class="info-toggle-button" onclick="toggleHobbies()" title="Click to view hobbies">▶</button>
+                    </div>
+                </div>
+                <div class="hobbies-box" id="hobbiesBox">
+                    <div class="personal-info-container">
+                        <div class="info-item">
+                            <div class="info-value">Playing Online Games</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-value">Listening to Music</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-item favorites-item">
+                    <div class="info-label favorites-with-button">
+                        <span>My Favorites</span>
+                        <button class="info-toggle-button" onclick="toggleAboutFavorites()" title="Click to view favorites">▶</button>
+                    </div>
+                </div>
+                <div class="about-favorites-box" id="aboutFavoritesBox">
+                    <div class="favorites-topics-container">
+                        <div class="favorite-topic-box">
+                            <div class="favorite-topic-header">
+                                <span class="favorite-topic-emoji">🐱</span>
+                                <span class="favorite-topic-title">Cats</span>
+                            </div>
+                            <div class="favorite-topic-description">
+                                <span class="description-short">One of my favorite animals is the cat. I like cats because they are cute, calm, and independent. They don't need too much attention, but they still show love in their own ways. I enjoy watching how playful they can be when they chase toys or roll around. Their soft fur and gentle purring make me feel relaxed whenever I'm near them. Cats also have funny personalities, and that makes me smile every day.</span>
+                                <span class="description-full">One of my favorite animals is the cat. I like cats because they are cute, calm, and independent. They don't need too much attention, but they still show love in their own ways. I enjoy watching how playful they can be when they chase toys or roll around. Their soft fur and gentle purring make me feel relaxed whenever I'm near them. Cats also have funny personalities, and that makes me smile every day.</span>
+                                <span class="see-more-link" onclick="toggleDescription(this)">see more...</span>
+                            </div>
+                        </div>
+                        <div class="favorite-topic-box">
+                            <div class="favorite-topic-header">
+                                <span class="favorite-topic-emoji">🎵</span>
+                                <span class="favorite-topic-title">Music</span>
+                            </div>
+                            <div class="favorite-topic-description">
+                                <span class="description-short">Music is one of the things I can't live without. It helps me express how I feel and comforts me when I'm sad or tired. I like listening to different types of music depending on my mood — sometimes pop when I want to dance, and slow songs when I just want to think. Music inspires me and gives me energy to start my day. It's like my best friend that always understands me.</span>
+                                <span class="description-full">Music is one of the things I can't live without. It helps me express how I feel and comforts me when I'm sad or tired. I like listening to different types of music depending on my mood — sometimes pop when I want to dance, and slow songs when I just want to think. Music inspires me and gives me energy to start my day. It's like my best friend that always understands me.</span>
+                                <span class="see-more-link" onclick="toggleDescription(this)">see more...</span>
+                            </div>
+                        </div>
+                        <div class="favorite-topic-box">
+                            <div class="favorite-topic-header">
+                                <span class="favorite-topic-emoji">🌅</span>
+                                <span class="favorite-topic-title">Sunsets</span>
+                            </div>
+                            <div class="favorite-topic-description">
+                                <span class="description-short">I love watching sunsets because they are peaceful and beautiful. When the sky turns orange, pink, and purple, it feels like the world slows down for a moment. It reminds me to appreciate life and be thankful for another day. Watching a sunset makes me calm and helps me forget my worries. It's one of those simple things that make me feel happy inside.</span>
+                                <span class="description-full">I love watching sunsets because they are peaceful and beautiful. When the sky turns orange, pink, and purple, it feels like the world slows down for a moment. It reminds me to appreciate life and be thankful for another day. Watching a sunset makes me calm and helps me forget my worries. It's one of those simple things that make me feel happy inside.</span>
+                                <span class="see-more-link" onclick="toggleDescription(this)">see more...</span>
+                            </div>
+                        </div>
+                        <div class="favorite-topic-box">
+                            <div class="favorite-topic-header">
+                                <span class="favorite-topic-emoji">🍽️</span>
+                                <span class="favorite-topic-title">Foods</span>
+                            </div>
+                            <div class="favorite-topic-description">
+                                <span class="description-short">When it comes to food, I have quite a sweet and simple taste. I love chocolate because it melts in my mouth and instantly makes me feel happy. Spaghetti is my favorite meal because it's flavorful and comforting — I especially like it when it's cooked with a sweet-style sauce. And marshmallows? They're soft, sweet, and fun to eat, especially when roasted or mixed with chocolate. These foods remind me of celebrations, bonding, and happy moments with friends and family.</span>
+                                <span class="description-full">When it comes to food, I have quite a sweet and simple taste. I love chocolate because it melts in my mouth and instantly makes me feel happy. Spaghetti is my favorite meal because it's flavorful and comforting — I especially like it when it's cooked with a sweet-style sauce. And marshmallows? They're soft, sweet, and fun to eat, especially when roasted or mixed with chocolate. These foods remind me of celebrations, bonding, and happy moments with friends and family.</span>
+                                <span class="see-more-link" onclick="toggleDescription(this)">see more...</span>
+                            </div>
+                        </div>
+                        <div class="favorite-topic-box">
+                            <div class="favorite-topic-header">
+                                <span class="favorite-topic-emoji">👫</span>
+                                <span class="favorite-topic-title">My Friends</span>
+                            </div>
+                            <div class="favorite-topic-description">
+                                <span class="description-short">My friends are also one of my favorites because they make my life more colorful and fun. They're always there when I need someone to talk to or laugh with. I like being surrounded by people who understand and support me no matter what. My friends motivate me to be better and remind me that I'm never alone in facing challenges.</span>
+                                <span class="description-full">My friends are also one of my favorites because they make my life more colorful and fun. They're always there when I need someone to talk to or laugh with. I like being surrounded by people who understand and support me no matter what. My friends motivate me to be better and remind me that I'm never alone in facing challenges.</span>
+                                <span class="see-more-link" onclick="toggleDescription(this)">see more...</span>
+                            </div>
+                        </div>
+                        <div class="favorite-topic-box">
+                            <div class="favorite-topic-header">
+                                <span class="favorite-topic-emoji">🎬</span>
+                                <span class="favorite-topic-title">Movies</span>
+                            </div>
+                            <div class="favorite-topic-description">
+                                <span class="description-short">I enjoy watching movies and shows that make me laugh, feel inspired, or even emotional. Some of my favorites are Minions and Doraemon because they're funny, cute, and full of good lessons about friendship and kindness. I also like watching BL (Boys' Love) series because they show different kinds of love and teach acceptance, equality, and respect for the LGBTQIA+ community. I admire how these stories show that love is love — no matter who you are.</span>
+                                <span class="description-full">I enjoy watching movies and shows that make me laugh, feel inspired, or even emotional. Some of my favorites are Minions and Doraemon because they're funny, cute, and full of good lessons about friendship and kindness. I also like watching BL (Boys' Love) series because they show different kinds of love and teach acceptance, equality, and respect for the LGBTQIA+ community. I admire how these stories show that love is love — no matter who you are.</span>
+                                <span class="see-more-link" onclick="toggleDescription(this)">see more...</span>
+                            </div>
+                        </div>
+                        <div class="favorite-topic-box">
+                            <div class="favorite-topic-header">
+                                <span class="favorite-topic-emoji">📱</span>
+                                <span class="favorite-topic-title">Social Media</span>
+                            </div>
+                            <div class="favorite-topic-description">
+                                <span class="description-short">Social media is one of my favorites because it allows me to communicate, share, and learn from different people around the world. I enjoy using various platforms where I can express myself creatively and stay informed about current events.</span>
+                                <span class="description-full">Social media is one of my favorites because it allows me to communicate, share, and learn from different people around the world. I enjoy using various platforms where I can express myself creatively and stay informed about current events. Through these platforms, I can connect with my family and friends, explore new ideas, and discover trends that match my interests. Social media also helps me stay updated with technology, entertainment, and news while providing a space to appreciate art, culture, and diverse communities. It is important in my daily life because it combines communication, learning, and self-expression in one digital environment.</span>
+                                <span class="see-more-link" onclick="toggleDescription(this)">see more...</span>
+                            </div>
+                        </div>
+                        <div class="favorite-topic-box">
+                            <div class="favorite-topic-header">
+                                <span class="favorite-topic-emoji">💻</span>
+                                <span class="favorite-topic-title">Why I Chose IT?</span>
+                            </div>
+                            <div class="favorite-topic-description">
+                                <span class="description-short">I chose Information Technology (IT) because I've always been interested in computers and how technology works. I want to learn how to create programs, fix problems, and use technology to make life easier for people. I believe IT has a big role in the future, and being part of it makes me excited. I know it won't always be easy, but I'm ready to face the challenges because it's something I'm truly passionate about.</span>
+                                <span class="description-full">I chose Information Technology (IT) because I've always been interested in computers and how technology works. I want to learn how to create programs, fix problems, and use technology to make life easier for people. I believe IT has a big role in the future, and being part of it makes me excited. I know it won't always be easy, but I'm ready to face the challenges because it's something I'm truly passionate about.</span>
+                                <span class="see-more-link" onclick="toggleDescription(this)">see more...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="back-button-box">
+                    <button class="modal-action-button btn-back small-button" onclick="closeModal('about')">Back to Main Menu</button>
+                    <button class="modal-action-button btn-exit small-button" onclick="exitPage()">Exit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Favorites Modal -->
+    <div class="modal-overlay" id="favoritesModal">
+        <div class="modal-box modal-favorites">
+            <div class="modal-content">
+                <h2 style="text-align: center; font-size: 32px; margin-bottom: 30px; color: #333; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">My Favorites</h2>
+                <div class="favorites-grid">
+                    <div class="favorite-card clickable" onclick="openModal('gaming')">
+                        <div class="favorite-icon">🎮</div>
+                        <div class="favorite-title">Gaming</div>
+                        <div class="favorite-description">When i got so bored, i play this games.</div>
+                    </div>
+                    <div class="favorite-card clickable" onclick="openModal('music')">
+                        <div class="favorite-icon">🎵</div>
+                        <div class="favorite-title">Music</div>
+                        <div class="favorite-description">When I'm sleeping, eating, walking, etc., I play this music.</div>
+                    </div>
+                    <div class="favorite-card clickable" onclick="showComingSoon()">
+                        <div class="favorite-icon">🕒</div>
+                        <div class="favorite-title">Coming Soon</div>
+                        <div class="favorite-description">Stay tuned for updates</div>
+                    </div>
+                    <div class="favorite-card clickable" onclick="showComingSoon()">
+                        <div class="favorite-icon">🕒</div>
+                        <div class="favorite-title">Coming Soon</div>
+                        <div class="favorite-description">Stay tuned for updates</div>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-action-button btn-back" onclick="closeModal('favorites')">Back to Main Menu</button>
+                    <button class="modal-action-button btn-exit" onclick="exitPage()">Exit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gaming Modal -->
+    <div class="modal-overlay" id="gamingModal">
+        <div class="modal-box modal-gaming">
+            <h1 class="modal-title">Gaming</h1>
+            <div class="modal-content">
+                <div class="info-item">
+                    <div class="info-label">MOBILE LEGENDS: BANG BANG</div>
+                    <div class="info-value">
+                        <a href="https://play.google.com/store/apps/details?id=com.mobile.legends&pcampaignid=web_share" target="_blank" class="gaming-link-button">Click Me</a>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">ROBLOX</div>
+                    <div class="info-value">
+                        <a href="https://play.google.com/store/apps/details?id=com.roblox.client&pcampaignid=web_share" target="_blank" class="gaming-link-button">Click Me</a>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-action-button btn-back" onclick="closeModal('gaming')">Back to Main Menu</button>
+                    <button class="modal-action-button btn-exit" onclick="exitPage()">Exit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Music Modal -->
+    <div class="modal-overlay" id="musicModal">
+        <div class="modal-box modal-music">
+            <button class="music-info-button" onclick="toggleDisclaimer()" title="Disclaimer">!</button>
+            <div class="music-disclaimer-box" id="musicDisclaimer">
+                <p>I DON'T OWN THE RIGHTS TO THE MUSIC USED HERE. ALL CREDITS AND RIGHTS TO THE RESPECTIVE ARTISTS AND COPYRIGHT HOLDERS. SHARED PURELY FOR APPRECIATION AND INSPIRATION.</p>
+                <button class="disclaimer-button" onclick="toggleDisclaimer()">Understood</button>
+            </div>
+            <h1 class="modal-title">Music</h1>
+            <div style="text-align: center; font-style: italic; font-size: 14px; color: #555; margin-bottom: 8px;">My Top 25 Songs</div>
+            <div class="modal-content">
+                <div class="music-list">
+                    <div class="info-item song-item">
+                        <div class="info-label">SABRINA CARPENTER - WHEN DID YOU GET HOT</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('sabrina', -5)">-5s</button>
+                                    <button class="play-button" data-song="sabrina" onclick="toggleMusic('sabrina')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('sabrina', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('sabrina')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-sabrina" preload="metadata" controls style="display: none;">
+                                    <source src="Sabrina Carpenter - When Did You Get Hot_ (Lyrics).mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-sabrina">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-sabrina"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-sabrina">0:00</span>
+                                        <span id="totalTime-sabrina">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">ARIANA GRANDE - POSITIONS</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('positions', -5)">-5s</button>
+                                    <button class="play-button" data-song="positions" onclick="toggleMusic('positions')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('positions', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('positions')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-positions" preload="metadata" controls style="display: none;">
+                                    <source src="Ariana Grande - positions (Lyrics).mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-positions">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-positions"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-positions">0:00</span>
+                                        <span id="totalTime-positions">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- New Ariana songs above Break Free -->
+                    <div class="info-item song-item">
+                        <div class="info-label">ARIANA GRANDE - GOODNIGH N GO</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('goodnightngo', -5)">-5s</button>
+                                    <button class="play-button" data-song="goodnightngo" onclick="toggleMusic('goodnightngo')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('goodnightngo', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('goodnightngo')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-goodnightngo" preload="metadata" controls style="display: none;">
+                                    <source src="Ariana Grande - Goodnight n Go.mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-goodnightngo">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-goodnightngo"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-goodnightngo">0:00</span>
+                                        <span id="totalTime-goodnightngo">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">ARIANA GRANDE - INTRO ( EXTENDED )</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('ariintro', -5)">-5s</button>
+                                    <button class="play-button" data-song="ariintro" onclick="toggleMusic('ariintro')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('ariintro', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('ariintro')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-ariintro" preload="metadata" controls style="display: none;">
+                                    <source src="Ariana Grande - Intro (Extended).mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-ariintro">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-ariintro"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-ariintro">0:00</span>
+                                        <span id="totalTime-ariintro">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">ARIANA GRANDE - PAST LIFE</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('aripastlife', -5)">-5s</button>
+                                    <button class="play-button" data-song="aripastlife" onclick="toggleMusic('aripastlife')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('aripastlife', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('aripastlife')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-aripastlife" preload="metadata" controls style="display: none;">
+                                    <source src="Ariana Grande - Past Life.mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-aripastlife">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-aripastlife"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-aripastlife">0:00</span>
+                                        <span id="totalTime-aripastlife">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">ARIANA GRANDE &amp; SOCIAL HOUSE - BOYFRIEND</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('ariboyfriend', -5)">-5s</button>
+                                    <button class="play-button" data-song="ariboyfriend" onclick="toggleMusic('ariboyfriend')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('ariboyfriend', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('ariboyfriend')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-ariboyfriend" preload="metadata" controls style="display: none;">
+                                    <source src="Ariana Grande & Social House - Boyfriend.mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-ariboyfriend">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-ariboyfriend"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-ariboyfriend">0:00</span>
+                                        <span id="totalTime-ariboyfriend">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">ARIANA GRANDE - BREAK FREE</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('breakfree', -5)">-5s</button>
+                                    <button class="play-button" data-song="breakfree" onclick="toggleMusic('breakfree')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('breakfree', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('breakfree')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-breakfree" preload="metadata" controls style="display: none;">
+                                    <source src="Ariana Grande - Break Free (Lyrics).mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-breakfree">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-breakfree"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-breakfree">0:00</span>
+                                        <span id="totalTime-breakfree">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">TAYLOR SWIFT - OPALITE</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('opalite', -5)">-5s</button>
+                                    <button class="play-button" data-song="opalite" onclick="toggleMusic('opalite')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('opalite', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('opalite')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-opalite" preload="metadata" controls style="display: none;">
+                                    <source src="Taylor Swift - Opalite (Lyrics).mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-opalite">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-opalite"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-opalite">0:00</span>
+                                        <span id="totalTime-opalite">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- New Taylor songs above The Fate of Ophelia -->
+                    <div class="info-item song-item">
+                        <div class="info-label">TAYLOR SWIFT - BLANK SPACE</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('blankspace', -5)">-5s</button>
+                                    <button class="play-button" data-song="blankspace" onclick="toggleMusic('blankspace')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('blankspace', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('blankspace')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-blankspace" preload="metadata" controls style="display: none;">
+                                    <source src="Taylor Swift - Blank Space.mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-blankspace">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-blankspace"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-blankspace">0:00</span>
+                                        <span id="totalTime-blankspace">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">TAYLOR SWIFT - SLUT!</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('slut', -5)">-5s</button>
+                                    <button class="play-button" data-song="slut" onclick="toggleMusic('slut')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('slut', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('slut')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-slut" preload="metadata" controls style="display: none;">
+                                    <source src="Taylor Swift - Slut!.mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-slut">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-slut"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-slut">0:00</span>
+                                        <span id="totalTime-slut">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">TAYLOR SWIFT - THE FATE OF OPHELIA</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('opheila', -5)">-5s</button>
+                                    <button class="play-button" data-song="opheila" onclick="toggleMusic('opheila')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('opheila', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('opheila')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-opheila" preload="metadata" controls style="display: none;">
+                                    <source src="Taylor Swift - The Fate of Ophelia.mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-opheila">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-opheila"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-opheila">0:00</span>
+                                        <span id="totalTime-opheila">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">THE WEEKND - IS THERE SOMEONE ELSE</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('weeknd', -5)">-5s</button>
+                                    <button class="play-button" data-song="weeknd" onclick="toggleMusic('weeknd')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('weeknd', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('weeknd')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-weeknd" preload="metadata" controls style="display: none;">
+                                    <source src="The Weeknd - Is There Someone Else_ (Audio).mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-weeknd">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-weeknd"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-weeknd">0:00</span>
+                                        <span id="totalTime-weeknd">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">YENG CONSTANTINO - COOL OFF</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('cooloff', -5)">-5s</button>
+                                    <button class="play-button" data-song="cooloff" onclick="toggleMusic('cooloff')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('cooloff', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('cooloff')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-cooloff" preload="metadata" controls style="display: none;">
+                                    <source src="Cool Off - Yeng Constantino (Lyrics).mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-cooloff">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-cooloff"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-cooloff">0:00</span>
+                                        <span id="totalTime-cooloff">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Inserted new songs before Justin Bieber - Confident -->
+                    <div class="info-item song-item">
+                        <div class="info-label">BILLIE EILISH - HAPPIER THAN EVER</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('happierthanever', -5)">-5s</button>
+                                    <button class="play-button" data-song="happierthanever" onclick="toggleMusic('happierthanever')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('happierthanever', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('happierthanever')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-happierthanever" preload="metadata" controls style="display: none;">
+                                    <source src="Billie Eilish - Happier Than Ever.mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-happierthanever">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-happierthanever"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-happierthanever">0:00</span>
+                                        <span id="totalTime-happierthanever">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">WAVE TO EARTH - LOVE.</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('wavetolove', -5)">-5s</button>
+                                    <button class="play-button" data-song="wavetolove" onclick="toggleMusic('wavetolove')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('wavetolove', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('wavetolove')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-wavetolove" preload="metadata" controls style="display: none;">
+                                    <source src="wave to earth - love..mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-wavetolove">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-wavetolove"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-wavetolove">0:00</span>
+                                        <span id="totalTime-wavetolove">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">LANY - SUPER FAR</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('superfar', -5)">-5s</button>
+                                    <button class="play-button" data-song="superfar" onclick="toggleMusic('superfar')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('superfar', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('superfar')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-superfar" preload="metadata" controls style="display: none;">
+                                    <source src="LANY - Super Far.mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-superfar">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-superfar"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-superfar">0:00</span>
+                                        <span id="totalTime-superfar">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">NIKI - BACKBURNER</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('backburner', -5)">-5s</button>
+                                    <button class="play-button" data-song="backburner" onclick="toggleMusic('backburner')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('backburner', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('backburner')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-backburner" preload="metadata" controls style="display: none;">
+                                    <source src="NIKI - Backburner.mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-backburner">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-backburner"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-backburner">0:00</span>
+                                        <span id="totalTime-backburner">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">THE 1975 - ABOUT YOU</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('aboutyou', -5)">-5s</button>
+                                    <button class="play-button" data-song="aboutyou" onclick="toggleMusic('aboutyou')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('aboutyou', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('aboutyou')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-aboutyou" preload="metadata" controls style="display: none;">
+                                    <source src="The 1975 - About You.mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-aboutyou">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-aboutyou"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-aboutyou">0:00</span>
+                                        <span id="totalTime-aboutyou">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">CHARLI XCX - 360</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('charli360', -5)">-5s</button>
+                                    <button class="play-button" data-song="charli360" onclick="toggleMusic('charli360')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('charli360', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('charli360')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-charli360" preload="metadata" controls style="display: none;">
+                                    <source src="Charli XCX - 360.mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-charli360">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-charli360"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-charli360">0:00</span>
+                                        <span id="totalTime-charli360">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">CALEIN - ORAS</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('oras', -5)">-5s</button>
+                                    <button class="play-button" data-song="oras" onclick="toggleMusic('oras')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('oras', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('oras')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-oras" preload="metadata" controls style="display: none;">
+                                    <source src="Calein - Oras.mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-oras">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-oras"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-oras">0:00</span>
+                                        <span id="totalTime-oras">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">LE JOHN - NAIILANG</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('nailang', -5)">-5s</button>
+                                    <button class="play-button" data-song="nailang" onclick="toggleMusic('nailang')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('nailang', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('nailang')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-nailang" preload="metadata" controls style="display: none;">
+                                    <source src="Le John - Naiilang.mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-nailang">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-nailang"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-nailang">0:00</span>
+                                        <span id="totalTime-nailang">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">CUP OF JOE - MULTO</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('multo', -5)">-5s</button>
+                                    <button class="play-button" data-song="multo" onclick="toggleMusic('multo')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('multo', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('multo')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-multo" preload="metadata" controls style="display: none;">
+                                    <source src="Cup of Joe - Multo.mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-multo">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-multo"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-multo">0:00</span>
+                                        <span id="totalTime-multo">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item song-item">
+                        <div class="info-label">JUSTIN BIEBER - CONFIDENT</div>
+                        <div class="info-value">
+                            <div class="music-player-container">
+                                <div class="song-controls">
+                                    <button class="music-control-button" onclick="skipMusic('confident', -5)">-5s</button>
+                                    <button class="play-button" data-song="confident" onclick="toggleMusic('confident')">▶️</button>
+                                    <button class="music-control-button" onclick="skipMusic('confident', 5)">+5s</button>
+                                    <button class="music-control-button" onclick="restartMusic('confident')">🔄</button>
+                                </div>
+                                <audio id="musicPlayer-confident" preload="metadata" controls style="display: none;">
+                                    <source src="Justin Bieber - Confident (Lyrics) she said its her first time.mp3" type="audio/mpeg">
+                                </audio>
+                                <div class="music-progress-container" id="musicProgressContainer-confident">
+                                    <div class="music-progress-bar-wrapper">
+                                        <div class="music-progress-bar" id="musicProgressBar-confident"></div>
+                                    </div>
+                                    <div class="music-time">
+                                        <span id="currentTime-confident">0:00</span>
+                                        <span id="totalTime-confident">0:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-action-button btn-back" onclick="closeModal('music')">Back to Main Menu</button>
+                    <button class="modal-action-button btn-exit" onclick="exitPage()">Exit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unavailable Message Box -->
+    <div class="unavailable-overlay" id="unavailableOverlay" onclick="closeUnavailable()"></div>
+    <div class="unavailable-message" id="unavailableMessage">
+        <div>UNFORTUNATELY UNAVAILABLE AT THIS TIME!</div>
+        <button class="unavailable-close" onclick="closeUnavailable()">OK</button>
+    </div>
+
+    <script>
+        // Loading Screen with Percentage and Progress Bar
+        window.addEventListener('load', function() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const loadingPercentage = document.getElementById('loadingPercentage');
+            const progressBar = document.getElementById('progressBar');
+            const duration = 15000; // 15 seconds
+            const updateInterval = 30; // Update every 30ms for smooth animation
+            const totalSteps = duration / updateInterval;
+            let currentStep = 0;
+            const introBox = document.getElementById('introBox');
+            const introSkip = document.getElementById('introSkip');
+            let introHideTimer = null;
+            const mainWarning = document.getElementById('mainWarning');
+            const warningTimerEl = document.getElementById('warningTimer');
+            const warningTimerLine = document.getElementById('warningTimerLine');
+            const updatingMsgEl = document.getElementById('updatingMsg');
+            const formLinkBelow = document.getElementById('formLinkBelow');
+            let warningCountdownInterval = null;
+            let targetNov15 = null;
+            
+            function updatePercentage() {
+                currentStep++;
+                const progress = Math.min(currentStep / totalSteps, 1);
+                
+                // Use a gentle easing function (ease-out) - smoother than before
+                const easedProgress = 1 - Math.pow(1 - progress, 1.5);
+                
+                // Calculate percentage (0-100)
+                const percentage = Math.min(100, Math.floor(easedProgress * 100));
+                const widthPercentage = easedProgress * 100;
+                
+                // Update percentage text
+                loadingPercentage.textContent = percentage + '%';
+                
+                // Update progress bar width
+                progressBar.style.width = widthPercentage + '%';
+                
+                if (progress < 1) {
+                    setTimeout(updatePercentage, updateInterval);
+                } else {
+                    // Ensure it ends at exactly 100%
+                    loadingPercentage.textContent = '100%';
+                    progressBar.style.width = '100%';
+                    setTimeout(function() {
+                        loadingScreen.classList.add('hidden');
+                        // Show welcome intro box
+                        if (introBox) {
+                            introBox.classList.add('show');
+                            // Hide warning while intro is visible
+                            if (mainWarning) mainWarning.style.display = 'none';
+                            if (formLinkBelow) formLinkBelow.style.display = 'none';
+                            // Start countdown immediately (even while intro is visible)
+                            startWarningCountdown();
+                            // Auto fade after 15s if not skipped
+                            introHideTimer = setTimeout(function() {
+                                introBox.classList.add('fade-out');
+                                // Finally hide it from layout after fade
+                                setTimeout(function() {
+                                    introBox.style.display = 'none';
+                                    // Show warning and start countdown
+                                    if (mainWarning) {
+                                        mainWarning.style.display = '';
+                                        // countdown already running
+                                        if (formLinkBelow) formLinkBelow.style.display = '';
+                                    }
+                                }, 900);
+                            }, 30000);
+                            if (introSkip) {
+                                introSkip.addEventListener('click', function() {
+                                    if (introHideTimer) {
+                                        clearTimeout(introHideTimer);
+                                        introHideTimer = null;
+                                    }
+                                    introBox.classList.add('fade-out');
+                                    setTimeout(function() {
+                                        introBox.style.display = 'none';
+                                        // Show warning and start countdown
+                                        if (mainWarning) {
+                                            mainWarning.style.display = '';
+                                            // countdown already running
+                                            if (warningTimerLine) warningTimerLine.style.display = '';
+                                            if (updatingMsgEl) updatingMsgEl.style.display = 'none';
+                                            if (formLinkBelow) formLinkBelow.style.display = '';
+                                        }
+                                    }, 900);
+                                });
+                            }
+                        }
+                    }, 300);
+                }
+            }
+            
+            updatePercentage();
+
+            function formatDhms(totalSeconds) {
+                const days = Math.floor(totalSeconds / 86400);
+                const rem = totalSeconds % 86400;
+                const hours = Math.floor(rem / 3600);
+                const mins = Math.floor((rem % 3600) / 60);
+                const secs = rem % 60;
+                const dd = String(days).padStart(2, '0');
+                const hh = String(hours).padStart(2, '0');
+                const mm = String(mins).padStart(2, '0');
+                const ss = String(secs).padStart(2, '0');
+                return dd + ':' + hh + ':' + mm + ':' + ss;
+            }
+
+            function startWarningCountdown() {
+                if (!warningTimerEl) return;
+                // Determine target Nov 15 (current year or next if passed)
+                if (!targetNov15) {
+                    const now = new Date();
+                    const currentYear = now.getFullYear();
+                    const tentative = new Date(currentYear, 10, 25, 0, 0, 0); // Month 10 = November, Day 25
+                    targetNov15 = (now <= tentative) ? tentative : new Date(currentYear + 1, 10, 25, 0, 0, 0);
+                }
+                function updateCountdown() {
+                    const now = new Date();
+                    let diff = Math.floor((targetNov15.getTime() - now.getTime()) / 1000);
+                    if (diff < 0) diff = 0;
+                    if (warningTimerEl) warningTimerEl.textContent = formatDhms(diff);
+                    if (diff === 0) {
+                        if (warningCountdownInterval) {
+                            clearInterval(warningCountdownInterval);
+                        }
+                        // Swap timer with "UPDATING..."
+                        if (warningTimerLine) warningTimerLine.style.display = 'none';
+                        if (updatingMsgEl) updatingMsgEl.style.display = 'block';
+                    }
+                }
+                updateCountdown();
+                if (warningCountdownInterval) clearInterval(warningCountdownInterval);
+                warningCountdownInterval = setInterval(updateCountdown, 1000);
+            }
+        });
+
+        // Orientation Detection and Handling
+        function detectOrientation() {
+            const isPortrait = window.innerHeight > window.innerWidth;
+            const body = document.body;
+            const mainContent = document.getElementById('mainContent');
+            
+            // Remove existing orientation classes
+            body.classList.remove('portrait-mode', 'landscape-mode');
+            if (mainContent) {
+                mainContent.classList.remove('portrait-mode', 'landscape-mode');
+            }
+            
+            // Add appropriate class
+            if (isPortrait) {
+                body.classList.add('portrait-mode');
+                if (mainContent) {
+                    mainContent.classList.add('portrait-mode');
+                }
+            } else {
+                body.classList.add('landscape-mode');
+                if (mainContent) {
+                    mainContent.classList.add('landscape-mode');
+                }
+            }
+            
+            // Force reflow to ensure styles apply
+            if (mainContent) {
+                mainContent.style.display = 'none';
+                mainContent.offsetHeight; // Trigger reflow
+                mainContent.style.display = '';
+            }
+        }
+
+        // Detect orientation on load
+        window.addEventListener('load', function() {
+            detectOrientation();
+        });
+
+        // Detect orientation on resize and orientation change
+        window.addEventListener('resize', function() {
+            detectOrientation();
+        });
+
+        window.addEventListener('orientationchange', function() {
+            // Delay to ensure orientation change is complete
+            setTimeout(function() {
+                detectOrientation();
+            }, 100);
+        });
+
+        // Also detect on initial load with a small delay
+        setTimeout(function() {
+            detectOrientation();
+        }, 500);
+
+        // Modal Functions
+        function openModal(type) {
+            const modal = document.getElementById(type + 'Modal');
+            if (modal) {
+                modal.classList.add('active');
+                // Only prevent body scroll, modal itself should scroll
+                document.body.style.overflow = 'hidden';
+                document.documentElement.style.overflow = 'hidden';
+                
+                // Initialize descriptions when About Me modal opens
+                if (type === 'about') {
+                    setTimeout(initializeDescriptions, 300);
+                }
+            }
+        }
+
+        function closeModal(type) {
+            const modal = document.getElementById(type + 'Modal');
+            if (modal) {
+                modal.classList.remove('active');
+                // Restore scrolling
+                document.body.style.overflow = 'auto';
+                document.documentElement.style.overflow = 'auto';
+            }
+            
+            // Stop all music if closing music modal
+            if (type === 'music') {
+                const songIds = ['sabrina', 'positions', 'goodnightngo', 'ariintro', 'aripastlife', 'ariboyfriend', 'breakfree', 'opalite', 'blankspace', 'slut', 'opheila', 'weeknd', 'cooloff', 'happierthanever', 'wavetolove', 'superfar', 'backburner', 'aboutyou', 'charli360', 'oras', 'nailang', 'multo', 'confident'];
+                songIds.forEach(songId => {
+                    const audio = document.getElementById('musicPlayer-' + songId);
+                    if (audio && !audio.paused) {
+                        audio.pause();
+                        audio.currentTime = 0;
+                        const playButton = document.querySelector(`button[data-song="${songId}"]`);
+                        if (playButton) playButton.textContent = '▶️';
+                        const progressContainer = document.getElementById('musicProgressContainer-' + songId);
+                        if (progressContainer) progressContainer.classList.remove('active');
+                        const progressBar = document.getElementById('musicProgressBar-' + songId);
+                        if (progressBar) progressBar.style.width = '0%';
+                        const currentTime = document.getElementById('currentTime-' + songId);
+                        if (currentTime) currentTime.textContent = '0:00';
+                    }
+                });
+            }
+        }
+
+        function closeModalOnOverlay(event, type) {
+            if (event.target === event.currentTarget) {
+                closeModal(type);
+            }
+        }
+
+        // Exit page function
+        function exitPage() {
+            // Try to close the window/tab
+            window.close();
+            // If window.close() doesn't work (browser blocks it), redirect to blank page
+            setTimeout(function() {
+                window.location.href = 'about:blank';
+            }, 100);
+        }
+
+        // Unavailable message functions
+        function showUnavailable() {
+            const overlay = document.getElementById('unavailableOverlay');
+            const message = document.getElementById('unavailableMessage');
+            if (overlay && message) {
+                overlay.classList.add('show');
+                message.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                document.documentElement.style.overflow = 'hidden';
+            }
+        }
+
+        function closeUnavailable() {
+            const overlay = document.getElementById('unavailableOverlay');
+            const message = document.getElementById('unavailableMessage');
+            if (overlay && message) {
+                overlay.classList.remove('show');
+                message.classList.remove('show');
+                document.body.style.overflow = 'auto';
+                document.documentElement.style.overflow = 'auto';
+                // restore default message text
+                const msgText = message.querySelector('div');
+                if (msgText) msgText.textContent = 'UNFORTUNATELY UNAVAILABLE AT THIS TIME!';
+            }
+        }
+
+        // Coming soon message using same overlay
+        function showComingSoon() {
+            const overlay = document.getElementById('unavailableOverlay');
+            const message = document.getElementById('unavailableMessage');
+            if (overlay && message) {
+                const msgText = message.querySelector('div');
+                if (msgText) msgText.textContent = 'coming soon stay tuned';
+                overlay.classList.add('show');
+                message.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                document.documentElement.style.overflow = 'hidden';
+            } else {
+                alert('coming soon stay tuned');
+            }
+        }
+
+        // Music Player Functions
+        let currentPlayingSong = null;
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+
+        // Set up event handlers for all audio players
+        window.addEventListener('load', function() {
+            const songIds = ['sabrina', 'positions', 'goodnightngo', 'ariintro', 'aripastlife', 'ariboyfriend', 'breakfree', 'opalite', 'blankspace', 'slut', 'opheila', 'weeknd', 'cooloff', 'happierthanever', 'wavetolove', 'superfar', 'backburner', 'aboutyou', 'charli360', 'oras', 'nailang', 'multo', 'confident'];
+            songIds.forEach(songId => {
+                const audio = document.getElementById('musicPlayer-' + songId);
+                if (audio) {
+                    audio.addEventListener('loadedmetadata', function() {
+                        const totalTimeSpan = document.getElementById('totalTime-' + songId);
+                        if (totalTimeSpan) {
+                            totalTimeSpan.textContent = formatTime(audio.duration);
+                        }
+                    });
+
+                    audio.addEventListener('timeupdate', function() {
+                        const progressBar = document.getElementById('musicProgressBar-' + songId);
+                        const currentTimeSpan = document.getElementById('currentTime-' + songId);
+                        const totalTimeSpan = document.getElementById('totalTime-' + songId);
+                        
+                        if (audio.duration) {
+                            const progress = (audio.currentTime / audio.duration) * 100;
+                            if (progressBar) progressBar.style.width = progress + '%';
+                            if (currentTimeSpan) currentTimeSpan.textContent = formatTime(audio.currentTime);
+                            if (totalTimeSpan && totalTimeSpan.textContent === '0:00') {
+                                totalTimeSpan.textContent = formatTime(audio.duration);
+                            }
+                        }
+                    });
+
+                    audio.addEventListener('ended', function() {
+                        const playButton = document.querySelector(`button[data-song="${songId}"]`);
+                        if (playButton) playButton.textContent = '▶️';
+                        const progressContainer = document.getElementById('musicProgressContainer-' + songId);
+                        if (progressContainer) progressContainer.classList.remove('active');
+                        currentPlayingSong = null;
+                    });
+
+                    audio.addEventListener('error', function(e) {
+                        console.error('Error loading audio for', songId, ':', e);
+                        const playButton = document.querySelector(`button[data-song="${songId}"]`);
+                        if (playButton) {
+                            playButton.disabled = true;
+                            playButton.textContent = '❌';
+                            playButton.title = 'Audio file not found or cannot be loaded';
+                        }
+                    });
+
+                    audio.addEventListener('canplaythrough', function() {
+                        // Audio is ready to play
+                        console.log('Audio ready for', songId);
+                    });
+                }
+            });
+        });
+
+        function toggleMusic(songId) {
+            const audio = document.getElementById('musicPlayer-' + songId);
+            const playButton = document.querySelector(`button[data-song="${songId}"]`);
+            const progressContainer = document.getElementById('musicProgressContainer-' + songId);
+
+            if (!audio || !playButton) return;
+
+            // If a different song is playing, pause it
+            if (currentPlayingSong && currentPlayingSong !== songId) {
+                const prevAudio = document.getElementById('musicPlayer-' + currentPlayingSong);
+                const prevButton = document.querySelector(`button[data-song="${currentPlayingSong}"]`);
+                const prevProgress = document.getElementById('musicProgressContainer-' + currentPlayingSong);
+                if (prevAudio) {
+                    prevAudio.pause();
+                    prevAudio.currentTime = 0;
+                }
+                if (prevButton) prevButton.textContent = '▶️';
+                if (prevProgress) prevProgress.classList.remove('active');
+                const prevBar = document.getElementById('musicProgressBar-' + currentPlayingSong);
+                if (prevBar) prevBar.style.width = '0%';
+                const prevTime = document.getElementById('currentTime-' + currentPlayingSong);
+                if (prevTime) prevTime.textContent = '0:00';
+            }
+
+            if (audio.paused) {
+                const playPromise = audio.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        // Audio started playing successfully
+                        playButton.textContent = '⏸️';
+                        if (progressContainer) progressContainer.classList.add('active');
+                        currentPlayingSong = songId;
+                    }).catch(error => {
+                        // Auto-play was prevented or failed
+                        console.error('Error playing audio:', error);
+                        alert('Unable to play audio. Please click the play button again or check if the file exists.');
+                        playButton.textContent = '▶️';
+                    });
+                } else {
+                    // Fallback for older browsers
+                    playButton.textContent = '⏸️';
+                    if (progressContainer) progressContainer.classList.add('active');
+                    currentPlayingSong = songId;
+                }
+            } else {
+                audio.pause();
+                playButton.textContent = '▶️';
+                if (progressContainer) progressContainer.classList.remove('active');
+                currentPlayingSong = null;
+            }
+        }
+
+        function skipMusic(songId, seconds) {
+            const audio = document.getElementById('musicPlayer-' + songId);
+            if (audio && audio.duration) {
+                const newTime = Math.max(0, Math.min(audio.currentTime + seconds, audio.duration));
+                audio.currentTime = newTime;
+            }
+        }
+
+        function restartMusic(songId) {
+            const audio = document.getElementById('musicPlayer-' + songId);
+            if (audio) {
+                audio.currentTime = 0;
+                if (!audio.paused) {
+                    audio.play();
+                }
+            }
+        }
+
+        function toggleDisclaimer() {
+            const disclaimer = document.getElementById('musicDisclaimer');
+            if (disclaimer) {
+                disclaimer.classList.toggle('show');
+            }
+        }
+
+        function togglePersonalInfo() {
+            const personalInfoBox = document.getElementById('personalInfoBox');
+            const toggleButton = document.querySelector('.name-with-button .info-toggle-button');
+            if (personalInfoBox) {
+                personalInfoBox.classList.toggle('show');
+                if (toggleButton) {
+                    toggleButton.classList.toggle('rotated');
+                }
+            }
+        }
+
+        function toggleHobbies() {
+            const hobbiesBox = document.getElementById('hobbiesBox');
+            const toggleButton = document.querySelector('.hobbies-with-button .info-toggle-button');
+            if (hobbiesBox) {
+                hobbiesBox.classList.toggle('show');
+                if (toggleButton) {
+                    toggleButton.classList.toggle('rotated');
+                }
+            }
+        }
+
+        function toggleDescription(element) {
+            const descriptionContainer = element.parentElement;
+            const shortDesc = descriptionContainer.querySelector('.description-short');
+            const fullDesc = descriptionContainer.querySelector('.description-full');
+            const seeMoreLink = element;
+
+            if (!shortDesc || !fullDesc) return;
+
+            // Check if currently expanded by checking if fullDesc is visible
+            const isExpanded = fullDesc.classList.contains('expanded');
+
+            if (isExpanded) {
+                // Collapse - show short, hide full
+                shortDesc.classList.remove('expanded');
+                fullDesc.classList.remove('expanded');
+                seeMoreLink.textContent = 'see more...';
+            } else {
+                // Expand - hide short, show full
+                shortDesc.classList.add('expanded');
+                fullDesc.classList.add('expanded');
+                seeMoreLink.textContent = 'see less...';
+            }
+        }
+
+        // Initialize descriptions to show only first 5 words
+        function initializeDescriptions() {
+            const descriptions = document.querySelectorAll('.description-short');
+            descriptions.forEach(desc => {
+                // Get the original full text from data attribute or from description-full
+                const descriptionContainer = desc.parentElement;
+                const fullDesc = descriptionContainer.querySelector('.description-full');
+                if (fullDesc) {
+                    const fullText = fullDesc.textContent.trim();
+                    const words = fullText.split(' ');
+                    if (words.length > 5) {
+                        const firstFiveWords = words.slice(0, 5).join(' ');
+                        desc.textContent = firstFiveWords;
+                        // Store full text in data attribute
+                        desc.setAttribute('data-full-text', fullText);
+                    } else {
+                        // If 5 words or less, hide the see more link
+                        const seeMoreLink = descriptionContainer.querySelector('.see-more-link');
+                        if (seeMoreLink) {
+                            seeMoreLink.style.display = 'none';
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // Also initialize when favorites box is shown
+        function toggleAboutFavorites() {
+            const aboutFavoritesBox = document.getElementById('aboutFavoritesBox');
+            const toggleButton = document.querySelector('.favorites-with-button .info-toggle-button');
+            if (aboutFavoritesBox) {
+                aboutFavoritesBox.classList.toggle('show');
+                if (toggleButton) {
+                    toggleButton.classList.toggle('rotated');
+                }
+                // Initialize descriptions when box is shown
+                if (aboutFavoritesBox.classList.contains('show')) {
+                    setTimeout(initializeDescriptions, 100);
+                }
+            }
+        }
+
+        // Initialize music player when modal opens
+        const musicModal = document.getElementById('musicModal');
+        if (musicModal) {
+            musicModal.addEventListener('click', function(e) {
+                if (e.target === musicModal) {
+                    if (currentPlayingSong) {
+                        const audio = document.getElementById('musicPlayer-' + currentPlayingSong);
+                        const playButton = document.querySelector(`button[data-song="${currentPlayingSong}"]`);
+                        if (audio && !audio.paused) {
+                            audio.pause();
+                            if (playButton) playButton.textContent = '▶️';
+                        }
+                    }
+                }
+            });
+        }
+
+        // Personal details OTP gate
+        (function setupOtpGate() {
+            const showLink = document.getElementById('showOtpLink');
+            const otpContainer = document.getElementById('otpContainer');
+            const otpInput = document.getElementById('otpInput');
+            const otpSubmit = document.getElementById('otpSubmit');
+            const otpFeedback = document.getElementById('otpFeedback');
+            const personalBox = document.getElementById('personalInfoBox');
+            const accessGate = document.getElementById('personalAccessGate');
+            const personalToggleBtn = document.getElementById('personalToggleBtn');
+
+            if (!showLink || !otpContainer || !otpInput || !otpSubmit || !otpFeedback) return;
+
+            const validCodes = ['1298', '0912', '4643', '6464', '5382', '4638', '0047']; // 0047 is unlimited
+
+            function getUsedCodes() {
+                try {
+                    const raw = localStorage.getItem('usedOtpCodes');
+                    return raw ? JSON.parse(raw) : [];
+                } catch {
+                    return [];
+                }
+            }
+
+            function setUsedCodes(list) {
+                try {
+                    localStorage.setItem('usedOtpCodes', JSON.stringify(list));
+                } catch {}
+            }
+
+            function markCodeUsed(code) {
+                const used = getUsedCodes();
+                if (!used.includes(code)) {
+                    used.push(code);
+                    setUsedCodes(used);
+                }
+            }
+
+            function isCodeUsed(code) {
+                return getUsedCodes().includes(code);
+            }
+
+            // Reveal OTP input
+            showLink.addEventListener('click', function() {
+                otpContainer.style.display = 'block';
+                otpInput.focus();
+            });
+
+            // Clicking the Personal Details button only reveals the access gate (no direct access)
+            if (personalToggleBtn) {
+                personalToggleBtn.addEventListener('click', function() {
+                    if (!accessGate) return;
+                    const isHidden = accessGate.style.display === 'none' || accessGate.style.display === '';
+                    accessGate.style.display = isHidden ? 'block' : 'none';
+                    // Reset fields every toggle open
+                    if (isHidden) {
+                        otpContainer.style.display = 'none';
+                        otpInput.value = '';
+                        otpFeedback.textContent = '';
+                        // rotate to indicate open
+                        personalToggleBtn.classList.add('rotated');
+                    } else {
+                        // rotate back to indicate closed
+                        personalToggleBtn.classList.remove('rotated');
+                    }
+                    // Do not auto-show personal details here
+                    if (personalBox) personalBox.classList.remove('show');
+                });
+            }
+
+            // Allow only numbers
+            otpInput.addEventListener('keydown', function(e) {
+                const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End', 'Enter'];
+                if (allowedKeys.includes(e.key)) return;
+                if (!/^[0-9]$/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+
+            // Also sanitize on input paste
+            otpInput.addEventListener('input', function() {
+                otpInput.value = otpInput.value.replace(/[^0-9]/g, '').slice(0, 4);
+            });
+
+            function unlockPersonalDetails() {
+                // Hide gate, show details
+                if (accessGate) accessGate.style.display = 'none';
+                if (personalBox) personalBox.classList.add('show');
+                // Show welcome toast for 4 seconds
+                showWelcomeToast();
+                if (personalToggleBtn) personalToggleBtn.classList.remove('rotated');
+            }
+
+            function submitCode() {
+                const code = (otpInput.value || '').trim();
+                otpFeedback.style.color = '#cc0000';
+
+                if (!/^[0-9]{4}$/.test(code)) {
+                    otpFeedback.textContent = 'WRONG CODE';
+                    setTimeout(() => { otpFeedback.textContent = ''; }, 3000);
+                    return;
+                }
+
+                if (!validCodes.includes(code)) {
+                    otpFeedback.textContent = 'WRONG CODE';
+                    setTimeout(() => { otpFeedback.textContent = ''; }, 3000);
+                    return;
+                }
+
+                // 0047 is unlimited and never marked as used
+                if (code !== '0047') {
+                    if (isCodeUsed(code)) {
+                        otpFeedback.textContent = 'ALREADY BEEN USED';
+                        setTimeout(() => { otpFeedback.textContent = ''; }, 3000);
+                        return;
+                    }
+                    markCodeUsed(code);
+                }
+
+                // Success
+                unlockPersonalDetails();
+            }
+
+            otpSubmit.addEventListener('click', submitCode);
+            otpInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    submitCode();
+                }
+            });
+
+            // Welcome toast helper
+            function showWelcomeToast() {
+                let toast = document.getElementById('welcomeToast');
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.id = 'welcomeToast';
+                    toast.className = 'welcome-toast';
+                    toast.textContent = 'WELCOME';
+                    document.body.appendChild(toast);
+                }
+                toast.style.display = 'block';
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 4000);
+            }
+        })();
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                // Check if unavailable message is open
+                const unavailableMessage = document.getElementById('unavailableMessage');
+                if (unavailableMessage && unavailableMessage.classList.contains('show')) {
+                    closeUnavailable();
+                    return;
+                }
+                
+                const activeModals = document.querySelectorAll('.modal-overlay.active');
+                activeModals.forEach(modal => {
+                    if (modal.id === 'aboutModal') {
+                        closeModal('about');
+                    } else if (modal.id === 'favoritesModal') {
+                        closeModal('favorites');
+                    } else if (modal.id === 'gamingModal') {
+                        closeModal('gaming');
+                    } else if (modal.id === 'musicModal') {
+                        if (currentPlayingSong) {
+                            const audio = document.getElementById('musicPlayer-' + currentPlayingSong);
+                            const playButton = document.querySelector(`button[data-song="${currentPlayingSong}"]`);
+                            if (audio && !audio.paused) {
+                                audio.pause();
+                                if (playButton) playButton.textContent = '▶️';
+                            }
+                        }
+                        closeModal('music');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
